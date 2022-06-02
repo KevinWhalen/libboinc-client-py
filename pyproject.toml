@@ -1,0 +1,36 @@
+[tool.poetry]
+name = "boinc"
+version = "0.1.0"
+description = "Library of Python API bindings for the XML RPC_GUI API that the BOINC core client exposes."
+license = "GPL-3.0-or-later"
+authors = [
+	"Rodigo Silva (MestreLion) <linux@rodrigosilva.com>",
+	"drakej <https://github.com/drakej>",
+	"Kevin Whalen <kwhalen2@kent.edu>",
+]
+readme = "README.md"
+homepage = ""
+repository = ""
+documentation = ""
+packages = [
+	{include = "boinc", from = "src"},
+]
+include = [
+	"README.md",
+	"LICENSE",
+]
+exclude = []
+
+[tool.poetry.dependencies]
+python = "^3.6"
+
+[tool.poetry.extras]
+gooey = ["Gooey"]
+
+[tool.poetry.dev-dependencies]
+pytest = "^5.2"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
