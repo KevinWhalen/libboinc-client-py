@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
 # gui_rpc_client.py - GUI_RPC API for BOINC core client
@@ -21,11 +21,11 @@
 # Based on lib/gui_rpc_client*.{h,cpp}
 
 
-from xml.etree import ElementTree
 import StringIO
 import socket
+from xml.etree import ElementTree
 
-# #
+
 # // This file contains:
 # // 1) functions to clear and parse the various structs
 # // 2) actual GUI RPCs
@@ -63,15 +63,10 @@ import socket
 # #include "config.h"
 # #endif
 
-''' Version number relates to the BOINC version this API was based on '''
 
-''' Major part of BOINC version number '''
+# Version number relates to the BOINC version this API was based on.
 BOINC_MAJOR_VERSION = 7
-
-''' Minor part of BOINC version number '''
 BOINC_MINOR_VERSION = 0
-
-''' Release part of BOINC version number '''
 BOINC_RELEASE = 65
 
 
@@ -87,12 +82,13 @@ BOINC_RELEASE = 65
 # #ifndef _COMMON_DEFS_
 # #define _COMMON_DEFS_
 
-# // #defines or enums that are shared by more than one BOINC component
-# // (e.g. client, server, Manager, etc.)
+
+# "Defines" or "enums" that are shared by more than one BOINC component
+# (e.g. client, server, Manager, etc.).
 GUI_RPC_PASSWD_FILE = "/etc/boinc-client/gui_rpc_auth.cfg"
 GUI_RPC_PORT        = 31416
 
-# // values of "network status"
+# Values of "network status".
 NETWORK_STATUS_ONLINE          = 0
 NETWORK_STATUS_WANT_CONNECTION = 1
 NETWORK_STATUS_WANT_DISCONNECT = 2
@@ -1493,7 +1489,7 @@ def read_gui_rpc_password():
 # #endif /* _GUI_RPC_CLIENT_H_ */
 
 
-# Unit tests
+# Unit tests.
 if __name__ == "__main__":
     print "read_gui_rpc_password(): '%s'" % read_gui_rpc_password()
     rpc = RpcClient()

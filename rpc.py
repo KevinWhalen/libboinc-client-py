@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
 # rpc.py - Generic RPC Somewhat higher-level GUI_RPC API for BOINC core client
@@ -20,23 +20,28 @@
 
 # A replacement of gui_rpc_client for basic RPC calls, with a sane API
 
+
 import socket
 from xml.etree import ElementTree
 
-GUI_RPC_HOSTNAME    = None  # localhost
-GUI_RPC_PORT        = 31416
-GUI_RPC_TIMEOUT     = 10
+
+GUI_RPC_HOSTNAME = None  # localhost
+GUI_RPC_PORT = 31416
+GUI_RPC_TIMEOUT = 10
+
 
 class Rpc(object):
-    ''' Class to perform GUI RPC calls to a BOINC core client.
-        Usage in a context manager ('with' block) is recommended to ensure
-        disconnect() is called. Using the same instance for all calls is also
-        recommended so it reuses the same socket connection
-        '''
+    """
+    Class to perform GUI RPC calls to a BOINC core client.
+    Usage in a context manager ('with' block) is recommended to ensure
+    disconnect() is called. Using the same instance for all calls is also
+    recommended so it reuses the same socket connection
+    """
+
     def __init__(self, hostname="", port=0, timeout=0, text_output=False):
         self.hostname = hostname
-        self.port     = port
-        self.timeout  = timeout
+        self.port = port
+        self.timeout = timeout
         self.sock = None
         self.text_output = text_output
 
@@ -44,38 +49,45 @@ class Rpc(object):
     def sockargs(self):
         return (self.hostname, self.port, self.timeout)
 
-    def __enter__(self): self.connect(*self.sockargs); return self
-    def __exit__(self, *args): self.disconnect()
+    def __enter__(self):
+        self.connect(*self.sockargs)
+        return self
+
+    def __exit__(self, *args):
+        self.disconnect()
 
     def connect(self, hostname="", port=0, timeout=0):
-        ''' Connect to (hostname, port) with timeout in seconds.
-            Hostname defaults to None (localhost), and port to 31416
-            Calling multiple times will disconnect previous connection (if any),
-            and (re-)connect to host.
-        '''
+        """
+        Connect to (hostname, port) with timeout in seconds.
+        Hostname defaults to None (localhost), and port to 31416
+        Calling multiple times will disconnect previous connection (if any),
+        and (re-)connect to host.
+        """
         if self.sock:
             self.disconnect()
 
         self.hostname = hostname or GUI_RPC_HOSTNAME
-        self.port     = port     or GUI_RPC_PORT
-        self.timeout  = timeout  or GUI_RPC_TIMEOUT
+        self.port = port or GUI_RPC_PORT
+        self.timeout = timeout or GUI_RPC_TIMEOUT
 
-        self.sock = socket.create_connection(self.sockargs[0:2], self.sockargs[2])
+        self.sock = socket.create_connection(
+            self.sockargs[0:2], self.sockargs[2]
+        )
 
     def disconnect(self):
-        ''' Disconnect from host. Calling multiple times is OK (idempotent)
-        '''
+        """Disconnect from host. Calling multiple times is OK (idempotent)"""
         if self.sock:
             self.sock.close()
             self.sock = None
 
     def call(self, request, text_output=None):
-        ''' Do an RPC call. Pack and send the XML request and return the
-            unpacked reply. request can be either plain XML text or a
-            xml.etree.ElementTree.Element object. Return ElementTree.Element
-            or XML text according to text_output flag.
-            Will auto-connect if not connected.
-        '''
+        """
+        Do an RPC call. Pack and send the XML request and return the
+        unpacked reply. request can be either plain XML text or a
+        xml.etree.ElementTree.Element object. Return ElementTree.Element
+        or XML text according to text_output flag.
+        Will auto-connect if not connected.
+        """
         if text_output is None:
             text_output = self.text_output
 
@@ -85,10 +97,12 @@ class Rpc(object):
         if not isinstance(request, ElementTree.Element):
             request = ElementTree.fromstring(request)
 
-        # pack request
+        # Pack request.
         end = b'\003'
-        req = b"<boinc_gui_rpc_request>\n%s\n</boinc_gui_rpc_request>\n%s" \
-            % (ElementTree.tostring(request).replace(b' />',b'/>'), end)
+        req = b"<boinc_gui_rpc_request>\n%s\n</boinc_gui_rpc_request>\n%s" % (
+            ElementTree.tostring(request).replace(b' />', b'/>'),
+            end,
+        )
 
         try:
             self.sock.sendall(req)
@@ -104,11 +118,12 @@ class Rpc(object):
             except socket.error:
                 raise
             n = buf.find(end)
-            if not n == -1: break
+            if not n == -1:
+                break
             req += buf
         req += buf[:n]
 
-        # unpack reply (remove root tag, ie: first and last lines)
+        # Unpack reply (remove root tag, i.e.: first and last lines).
         req = b'\n'.join(req.strip().rsplit(b'\n')[1:-1])
 
         if text_output:
@@ -117,11 +132,12 @@ class Rpc(object):
             return ElementTree.fromstring(req)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
+    # Example.
     with Rpc(text_output=True) as rpc:
-        print(rpc.call('<exchange_versions/>'))
-        print(rpc.call('<get_cc_status/>'))
-        #print(rpc.call('<get_results/>'))
-        print(rpc.call('<get_host_info/>'))
+        print(rpc.call("<exchange_versions/>"))
+        print(rpc.call("<get_cc_status/>"))
+        # print(rpc.call("<get_results/>"))
+        print(rpc.call("<get_host_info/>"))
         print(rpc.call("<get_project_status/>"))
-        #print(rpc.call('<run_benchmarks/>'))
+        # print(rpc.call("<run_benchmarks/>"))
